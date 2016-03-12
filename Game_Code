@@ -1,0 +1,675 @@
+using System;
+using System.IO;
+
+namespace IntroCS
+{
+	class Another
+	{
+		static void Main ()
+		{
+			string up = "w";
+			string down = "s";
+			string left = "a";
+			string right = "d";
+			string open = " ";
+			string link;/*
+			int u = 10; starting location
+			int d = 4;*/
+			int u = 10;
+			int d = 4;
+			int GameOver = 1;
+			int z = 1;
+			int multi = 1;
+			int [] b = {100, 0, 100, 5, 10, 0, 0};
+			/*
+			b[0] = 100; Hitpoints
+			b[1] = 0; Arrow Supply
+			b[2] = 100; Max Hitpoints
+			b[3] = 5; Sword Damage
+			b[4] = 10; Arrow Damage
+			b[5] = 0; Flippers
+			b[6] = 0; Trap Disabler
+			*/
+			int sword = b[3];
+			int arrow = b[4];
+			char [,] map = MapLayoutLevel1 ();
+			do{	string move = UI.PromptLine("What direction? (w,a,s,d): ");
+				Console.WriteLine();
+				if (move == up){
+					link = map[u-1,d].ToString();
+					if(link == open){
+						link = map[u-2,d].ToString();
+						u = u-2;
+						b = Fight (u, d, map, sword, arrow, b, multi);
+						sword = SwordPower (u, d, map, sword);
+						arrow = BowPower (u, d, map, arrow);
+						map[u,d] = 'R';
+					}
+					else{
+						Console.WriteLine("Not a valid route");
+						Console.WriteLine();
+					}
+				}
+				if (move == down){
+					link = map[u+1,d].ToString();
+					if(link == open){
+						link = map[u+2,d].ToString();
+						u = u+2;
+						b = Fight (u, d, map, sword, arrow, b, multi);
+						//Hp = Fight (u, d, map, Hp, MaxHp, sword, arrow, arrowSupply);
+						sword = SwordPower (u, d, map, sword);
+						arrow = BowPower (u, d, map, arrow);
+						map[u,d] = 'R';
+					}
+					else{
+						Console.WriteLine("Not a valid route");
+						Console.WriteLine();
+					}
+				}
+				if (move == left){
+					link = map[u,d-1].ToString();
+					if(link == open){
+						link = map[u,d-2].ToString();
+						d = d-2;
+						b = Fight (u, d, map, sword, arrow, b, multi);
+						//Hp = Fight (u, d, map, Hp, MaxHp, sword, arrow, arrowSupply);
+						sword = SwordPower (u, d, map, sword);
+						arrow = BowPower (u, d, map, arrow);
+						map[u,d] = 'R';
+					}
+					else{
+						Console.WriteLine("Not a valid route");
+						Console.WriteLine();
+					}
+				}
+				if (move == right){
+					link = map[u,d+1].ToString();
+					if(link == open){
+						link = map[u,d+2].ToString();
+						d = d+2;
+						b = Fight (u, d, map, sword, arrow, b, multi);
+						//Hp = Fight (u, d, map, Hp, MaxHp, sword, arrow, arrowSupply);
+						sword = SwordPower (u, d, map, sword);
+						arrow = BowPower (u, d, map, arrow);
+						map[u,d] = 'R';
+					}
+					else{
+						Console.WriteLine("Not a valid route");
+						Console.WriteLine();
+					}
+				}
+				if (move == "map"){
+					if (z == 1){
+						PrintMapLevel1(u,d);
+					}
+					if (z == 2){
+						PrintMapLevel2(u,d);
+					}
+				}
+				if (u == 2 && d == 20){
+					if (z == 1){
+						map = MapLayoutLevel2 ();
+						u = 2;
+						d = 19;
+						z++;
+						Console.WriteLine("Congrats!");
+						Console.WriteLine("You Have Passed Level 1!");
+						Console.WriteLine("Good Luck With Level 2.");
+						Console.WriteLine();
+						multi = 2;
+					}
+				}
+			}while(GameOver > 0 && b[0] > 0);
+			if (GameOver == 0){
+				Console.WriteLine("Congrats, you have completed the game.");
+			}
+			if (b[0] <= 0){
+				Console.WriteLine("You suck, your dead");
+			}
+		}
+		static int [] Fight (int u, int d, char [,] map, int sword, int arrow, int [] b, int multi)
+		{
+			string a = map[u,d].ToString();
+			if (a == "R"){
+				Console.WriteLine("Empty Room");
+			}
+			if (a == "L"){
+				b = Fight_Monster (b, sword, arrow, 24, 2, "LikeLike");
+			}
+			if (a == "C"){
+				b = Fight_Monster (b, sword, arrow, 24, 2, "Octorock");
+				//HeroHp = Fight_Octorock (HeroHp, sword);
+			}
+			if (a == "B"){
+				b = Fight_Monster (b, sword, arrow, 24, 2, "Bubble");
+				//HeroHp = Fight_Bubble (HeroHp, sword);
+			}
+			if (a == "T"){
+				b = Fight_Monster (b, sword, arrow, 24, 2, "Stalfos");
+				//HeroHp = Fight_Stalfos (HeroHp, sword);
+			}
+			if (a == "D"){
+				b = Fight_Monster (b, sword, arrow, 24, 2, "DoomRaddle");
+				//HeroHp = Fight_DoomRaddle (HeroHp, sword);
+			}
+			if (a == "I"){
+				b = Fight_Monster (b, sword, arrow, 24, 2, "IronKnuckle");
+				//HeroHp = Fight_IronKnuckle (HeroHp, sword);
+			}
+			if (a == "9"){
+				b = Fight_Boss (b, sword, arrow, 24, 5, "Ganna");
+			}
+			if (a == "8"){
+				b = Fight_Boss (b, sword, arrow, 24*multi, 5*multi, "Wizzrobe");
+			}
+			if (a == "7"){
+				b = Fight_Boss (b, sword, arrow, 24*multi, 5*multi, "Gandorf");
+			}
+			if (a == "6"){
+				b = Fight_Boss (b, sword, arrow, 24*multi, 5*multi, "Tinsuit");
+			}
+			if (a == "1"){
+				b[0] = Traps.FlyingTile(b[0]);
+			}
+			if (a == "2"){
+				b[0] = Traps.Boulder(b[0]);
+			}
+			if (a == "3"){
+				b[0] = Traps.Blade(b[0]);
+			}
+			if (a == "4"){
+				b[0] = Traps.Lava(b[0]);
+			}
+			if (a == "H"){
+				b[2] = b[2] + 50;
+				b[0] = b[2];
+				Console.WriteLine("You found a heart container,");
+				Console.WriteLine("Hit points are fully restored!");
+				Console.WriteLine("Hit points are now " + b[2] + ".");
+				Console.WriteLine();
+			}
+			return b;
+		}
+		static int[]  Fight_Monster (int [] b, int sword, int arrow,int MonsterHp, int MonsterDamage, string name)
+		{
+			Random r = new Random();
+			int c = 0;
+			int attack = 0;
+			int a;
+			int damage;
+			Console.WriteLine("You engage with a " + name);
+			Console.WriteLine("1 = sword, 2 = arrow");
+			do{
+				c = 0;
+				if (b[1] == 0){
+					a = UI.PromptInt("You have no arrows, only a sword. (1 to attack): ");
+					if (a == 1){
+						damage = r.Next(sword-2,sword+3);
+						attack = damage;
+						c++;
+					}
+					else{
+						Console.WriteLine("Not a valid attack.");
+						Console.WriteLine();
+						attack = 0;
+					}
+				}
+				if (b[1] >= 1){
+					if (b[1] > 1){
+						Console.WriteLine("You have " + b[1] + " arrows.");
+					}
+					if (b[1] == 1){
+						Console.WriteLine("You have " + b[1] + " arrow.");
+					}
+					a = UI.PromptInt("What style of attack? (1 or 2): ");
+					if (a == 1){
+						damage = r.Next(sword-2,sword+3);
+						attack = damage;
+						c++;
+					}
+					if (a == 2){
+						attack = arrow;
+						b[1] = b[1] - 1;
+						c++;
+					}
+					if (a < 1 || a > 2){
+						Console.WriteLine("Not a valid attack.");
+						Console.WriteLine();
+					}
+				}
+				if (c > 0){
+					MonsterHp = MonsterHp - attack;
+					if (b[0] > 0 && MonsterHp > 0){
+						b[0] = b[0] - MonsterDamage;
+						Console.WriteLine("You do " + attack + " damage! " + name + " has " + MonsterHp + " hitpoints.");
+						Console.WriteLine(name + " does " + MonsterDamage + " damage! You have " + b[0] + " hitpoints");
+						Console.WriteLine();
+					}
+					if (MonsterHp <= 0){
+						Console.WriteLine("You hit a " + attack + " to defeat the " + name);
+						Console.WriteLine("Your current hitpoints are " + b[0] +".");
+						Console.WriteLine();
+					}
+					if (b[0] <= 0){
+						Console.WriteLine(name + " has defeated you!");
+					}
+				}
+			}while(MonsterHp > 0 && b[0] > 0);
+			if (b[0] > 0){
+				int drop = r.Next(1, 5);
+				if(drop <= 5){
+					int AddArrow = r.Next (2,4);
+					b[1] = b[1] + AddArrow;
+					Console.Write("You find " + AddArrow + " arrows!");
+				}
+			}
+			Console.WriteLine();
+			return b;
+		}
+		static int[]  Fight_Boss (int [] b, int sword, int arrow, int MonsterHp, int MonsterDamage, string name)
+		{
+			Random r = new Random();
+			int c = 0;
+			int attack = 0;
+			int a;
+			int damage;
+			Console.WriteLine("You engage with a " + name);
+			Console.WriteLine("1 = sword, 2 = arrow");
+			do{
+				c = 0;
+				if (b[1] == 0){
+					a = UI.PromptInt("You have no arrows, only a sword. (1 to attack): ");
+					if (a == 1){
+						damage = r.Next(sword-2,sword+3);
+						attack = damage;
+						c++;
+					}
+					else{
+						Console.WriteLine("Not a valid attack.");
+						Console.WriteLine();
+						attack = 0;
+					}
+				}
+				if (b[1] >= 1){
+					if (b[1] > 1){
+						Console.WriteLine("You have " + b[1] + " arrows.");
+					}
+					if (b[1] == 1){
+						Console.WriteLine("You have " + b[1] + " arrow.");
+					}
+					a = UI.PromptInt("What style of attack? (1 or 2): ");
+					if (a == 1){
+						damage = r.Next(sword-2,sword+3);
+						attack = damage;
+						c++;
+					}
+					if (a == 2){
+						attack = arrow;
+						b[1] = b[1] - 1;
+						c++;
+					}
+					if (a < 1 || a > 2){
+						Console.WriteLine("Not a valid attack.");
+						Console.WriteLine();
+					}
+				}
+				if (c > 0){
+					MonsterHp = MonsterHp - attack;
+					int attackStyle = r.Next (1,10);
+					if(attackStyle <= 8){
+						if (b[0] > 0 && MonsterHp > 0){
+							MonsterDamage = r.Next(MonsterDamage-3, MonsterDamage+3);
+							Console.WriteLine("You do " + attack + " damage! " + name + " has " + MonsterHp + " hitpoints.");
+							if (MonsterHp > 0){
+								b[0]  = b[0]  - MonsterDamage;
+								Console.WriteLine(name + " does " + MonsterDamage + " damage! You have " + b[0]  + " hitpoints");
+								Console.WriteLine();
+							}
+						}
+					}
+					if(attackStyle > 8){
+						if (b[0]  > 0 && MonsterHp > 0){
+							MonsterDamage = r.Next(MonsterDamage+5, MonsterDamage+15);
+							MonsterHp = MonsterHp - attack;
+							Console.WriteLine("You do " + attack + " damage! " + name + " has " + MonsterHp + " hitpoints.");
+							if (MonsterHp > 0 && b[0] > 0){
+								b[0]  = b[0]  - MonsterDamage;
+								Console.WriteLine(name + " POWERS UP FOR A SPECIAL ATTACK!");
+								Console.WriteLine(name + " does " + MonsterDamage + " damage! You have " + b[0]  + " hitpoints");
+								Console.WriteLine();
+							}
+						}
+					}
+					if (MonsterHp <= 0){
+						Console.WriteLine("You hit a " + attack + " to defeat " + name + "!");
+						Console.WriteLine("Your current hitpoints are " + b[0]  +".");
+						Console.WriteLine();
+					}
+					if (b[0]  <= 0){
+						Console.WriteLine(name + " has defeated you!");
+					}
+				}
+			}while(MonsterHp > 0 && b[0] > 0);
+			Console.WriteLine();
+			return b;
+		}
+		static int SwordPower (int u, int d, char [,] map, int sword)
+		{
+			string a = map[u,d].ToString();
+			if (a == "S"){
+				sword = sword*2;
+				Console.WriteLine("You have found a better sword!");
+				Console.WriteLine("Your damage is increased!");
+			}
+			return sword;
+		}
+		static int BowPower (int u, int d, char [,] map, int arrow)
+		{
+			string a = map[u,d].ToString();
+			if (a == "A"){
+				arrow = arrow*2;
+				Console.WriteLine("You have found a better bow!");
+				Console.WriteLine("Your arrow damage is increased!");
+			}
+			return arrow;
+		}
+		static char[,] MapLayoutLevel1 ()
+		{
+			string sgrid = @"
+0000000000000000000000000
+0000___________0000000000
+00W|1 R 6 C R C|000|8|000
+000| + |=| |=| |00_| |_00
+00W|R L|0|R|0|R|0|3 B 3|0
+00_| + |0| |0| |0| + + |0
+0|L 1 L|0|2|0|2|0|B 3 B|0
+0| + + |0| |_| |_| + + |0
+0|R L R|0|R R C 7 R 3 R|0
+0| + + |0|===| |===| |=00
+0|R R R|00000|H|000|S|000
+00=====0000000=00000=0000
+0000000000000000000000000";
+			// S = Pickups (special weapons), B = Bosses, T = Traps, X = Starting point [10,4], F = Final Boss.
+			int start = sgrid.IndexOf("0");
+			sgrid = sgrid.Substring (start);
+			string[] lines = sgrid.Split ('\n');
+			char[,] map = new char[13,25];
+			for (int i=0; i<lines.Length; i++) {
+				lines[i] = lines[i].Trim();
+				for (int j=0;j<25; j++) {
+					map[i,j] = lines[i][j];
+				}
+			}
+			return map;
+		}
+		static void PrintMapLevel1(int u, int d)
+			///u 2-5 d 3
+		{
+			string sgrid = @"
+                         
+    ___________     _    
+   |. . . . . .|   |.|   
+   | +  _   _  |  _| |_  
+   |. .| |.| |.| |. . .| 
+  _| + | | | | | | + + | 
+ |. . .| |.| |.| |. . .| 
+ | + + | | |_| |_| + + | 
+ |. . .| |. . . . . . .| 
+ | + + | |___   ___   _| 
+ |. . .|     |.|   |.|   
+  =====       =     =    
+                         ";
+			// S = pickups (specials), B = Bosses, T = Traps, C = starting point(Current location) [10,4], F = Final Boss.
+			int start = sgrid.IndexOf(" ");
+			sgrid = sgrid.Substring (start);
+			string[] lines = sgrid.Split ('\n');
+			char[,] map = new char[13,25];
+			for (int i=0; i<lines.Length; i++) {
+				lines[i] = lines[i];
+				for (int j=0;j<25; j++) {
+					map[i,j] = lines[i][j];
+					if (j <= 23 && i <= 11){
+						if (j >= 1 && i >= 2){
+							Console.BackgroundColor = ConsoleColor.Red;
+						}
+					}
+					if (j <= 15 && i <= 11){
+						if (j >= 1 && i >= 2){
+							Console.BackgroundColor = ConsoleColor.Blue;
+						}
+					}/*
+					if(i == 0 || i == 12){
+						Console.BackgroundColor = ConsoleColor.Red;
+					}
+					if(j == 0 && i >= 0){
+						Console.BackgroundColor = ConsoleColor.Red;
+					}
+					if(j == 24 && i >= 0){
+						Console.BackgroundColor = ConsoleColor.Red;
+					}*/
+					if(j >= 3 && j <= 7){
+						if(i >=2 && i <= 5){
+							Console.BackgroundColor = ConsoleColor.DarkGreen;
+						}
+					}
+					if(j >= 1 && j <= 7){
+						if(i >= 6 && i <= 11){
+							Console.BackgroundColor = ConsoleColor.DarkGreen;
+						}
+					}
+					if(j >=8 && j <= 15){
+						if(i >= 2 && i <= 3){
+							Console.BackgroundColor = ConsoleColor.DarkCyan;
+						}
+					}
+					if(j >= 9 && j <= 11){
+						if(i >= 3 && i <= 9){
+							Console.BackgroundColor = ConsoleColor.DarkCyan;
+						}
+					}
+					if(j >= 13 && j <= 15){
+						if(i >= 3 && i <= 11){
+							Console.BackgroundColor = ConsoleColor.DarkCyan;
+						}
+					}
+					if(j >= 12 && j <= 16){
+						if (i >= 8 && i <= 9){
+							Console.BackgroundColor = ConsoleColor.DarkCyan;
+						}
+					}
+					if(j >= 17 && j <= 23){
+						if(i >= 4 && i <= 9){
+							Console.BackgroundColor = ConsoleColor.DarkGray;
+						}
+					}
+					if(j >= 19 && j <= 21){
+						if(i >= 2 && i <= 11){
+							Console.BackgroundColor = ConsoleColor.DarkGray;
+						}
+					}
+					if(j == 12){
+						if(i >= 4 && i <= 7){
+							Console.BackgroundColor = ConsoleColor.Yellow;
+						}
+					}
+					map[u,d] = 'L';
+					if(u == i && d == j){
+						Console.ForegroundColor = ConsoleColor.White;
+					}
+					
+					Console.Write(map[i,j]);
+					Console.ResetColor();
+				}
+				Console.WriteLine();
+			}
+			Console.WriteLine();
+		}
+		static char[,] MapLayoutLevel2 ()
+		{
+			string sgrid = @"
+|                       |
+|                  _    |
+|Q                |R|   |
+|   ______________| |___|
+|   |T R R T R R R T R 1|
+|___| |---------------| |
+|A R R|               | |
+| + + |_______________| |
+|1 T R R R R T R R R R 1|
+| |---------------------|
+|6|                     |
+| |_____________________|
+|D R R R R D R R R R R H|
+| |------_-----_------| |
+|R|     |F|   |S|     |2|
+| |_____| |___| |_____| |
+|D R R R 2 R R 2 R R 2 D|
+|---------------------| |
+|A R| |3 B 3| |3 B 3| |7|
+| | | | |-| | | |-| | | |
+|R|R| |3| |3| |3| |3| |R|
+| | | | | | | | | | | | |
+|8|R| |3| |3| |3| |3| |R|
+| | |_| |_| |_| |_| |_| |
+|9|B 4 R 4 R R R 4 R H R|
+|=======================|";
+			// S = Pickups (special weapons), B = Bosses, T = Traps, X = Starting point [10,4], F = Final Boss.
+			int start = sgrid.IndexOf("|");
+			sgrid = sgrid.Substring (start);
+			string[] lines = sgrid.Split ('\n');
+			char[,] map = new char[26,25];
+			for (int i=0; i<lines.Length; i++) {
+				lines[i] = lines[i].Trim();
+				for (int j=0;j<25; j++) {
+					map[i,j] = lines[i][j];
+				}
+			}
+			return map;
+		}
+		static void PrintMapLevel2(int u, int d)
+			///u 2-5 d 3
+		{
+			string sgrid = @"
+ _______________________ 
+|                  _    |
+|.                |.|   |
+|   ______________| |___|
+|   |. . . . . . . . . .|
+|___|  _______________  |
+|. . .|               |.|
+| + + |_______________| |
+|. . . . . . . . . . . .|
+|  _____________________|
+|.|                     |
+| |_____________________|
+|. . . . . . . . . . . .|
+|  ___________________  |
+|.|     |.|   |.|     |.|
+| |_____| |___| |_____| |
+|. . . . . . . . . . . .|
+|_____________________| |
+|. .| |. . .| |. . .| |.|
+| | | |  _  | |  _  | | |
+|.|.| |.| |.| |.| |.| |.|
+| | | | | | | | | | | | |
+|.|.| |.| |.| |.| |.| |.|
+| | |_| |_| |_| |_| |_| |
+|.|. . . . . . . . . . .|
+|=======================|";
+			// S = pickups (specials), B = Bosses, T = Traps, C = starting point(Current location) [10,4], F = Final Boss.
+			int start = sgrid.IndexOf(" ");
+			sgrid = sgrid.Substring (start);
+			string[] lines = sgrid.Split ('\n');
+			char[,] map = new char[26,25];
+			for (int i=0; i<lines.Length; i++) {
+				lines[i] = lines[i];
+				for (int j=0;j<25; j++) {
+					map[i,j] = lines[i][j];
+					if (i <=25 && j <= 26){
+						Console.BackgroundColor = ConsoleColor.DarkGray;
+					}
+					if (i <= 11 && j <= 26){
+						Console.BackgroundColor = ConsoleColor.DarkGreen;
+					}
+					if (i <= 3 && j <= 17){
+						Console.BackgroundColor = ConsoleColor.Blue;
+					}
+					if (i <= 5 && j <= 3){
+						Console.BackgroundColor = ConsoleColor.Blue;
+					}
+					if (i <= 1 && j <= 26){
+						Console.BackgroundColor = ConsoleColor.Blue;
+					}
+					if (i <= 3){
+						if (j <= 26 && j >= 21){
+							Console.BackgroundColor = ConsoleColor.Blue;
+						}
+					}
+					if (i <= 7 && i >= 6){
+						if (j <= 21 && j >= 7){
+							Console.BackgroundColor = ConsoleColor.Blue;
+						}
+					}
+					if (i <= 11 && i >= 10){
+						if (j <= 24 && j >= 3){
+							Console.BackgroundColor = ConsoleColor.Blue;
+						}
+					}
+					if (i <= 17 && i >= 12){
+						if (j <= 26)
+							Console.BackgroundColor = ConsoleColor.DarkCyan;
+					}
+					if (i <= 15 && i >= 14){
+						if (j <= 21 && j >= 3){
+							Console.BackgroundColor = ConsoleColor.Black;
+						}
+					}
+					if (i <= 15 && i >= 14){
+						if (j <= 16 && j >= 14){
+							Console.BackgroundColor = ConsoleColor.DarkCyan;
+						}
+					}
+					if (i <= 15 && i >= 14){
+						if (j <= 10 && j >= 8){
+							Console.BackgroundColor = ConsoleColor.DarkCyan;
+						}
+					}
+					if (i <= 23 && i >= 18){
+						if (j == 21){
+							Console.BackgroundColor = ConsoleColor.Red;
+						}
+					}
+					if (i <= 23 && i >= 20){
+						if (j == 17){
+							Console.BackgroundColor = ConsoleColor.Red;
+						}
+					}
+					if (i <= 23 && i >= 18){
+						if (j == 13){
+							Console.BackgroundColor = ConsoleColor.Red;
+						}
+					}
+					if (i <= 23 && i >= 20){
+						if (j == 9){
+							Console.BackgroundColor = ConsoleColor.Red;
+						}
+					}
+					if (i <= 23 && i >= 18){
+						if (j == 5){
+							Console.BackgroundColor = ConsoleColor.Red;
+						}
+					}
+					map[u,d] = 'L';
+					if(u == i && d == j){
+						Console.ForegroundColor = ConsoleColor.White;
+					}
+					Console.Write(map[i,j]);
+					Console.ResetColor();
+				}
+				Console.WriteLine();
+			}
+			Console.WriteLine();
+		}
+	}
+}
+
